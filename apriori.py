@@ -3,7 +3,7 @@ import copy
 from progress.bar import Bar
 
 class Apriori:
-    def __init__(self, _file, _support=0.02, _confidence=0.5):
+    def __init__(self, _file, _support=0.02, _confidence=0.3):
         groceries = pd.read_csv(_file)
         groceries_array = groceries.values
 
@@ -44,6 +44,12 @@ class Apriori:
         dfs(record, 0, depth, [], ret)
         return ret
 
+    def get_all_subset(self, record):
+        res = []
+        for i in range(1, len(record)):
+            res.extend(self.dfs_record(record, i))
+        return res
+
     def expand_one_step(self, last_dic):
         res = {}
         keys = list(last_dic.keys())
@@ -74,7 +80,6 @@ class Apriori:
             if res[key] / self.record_num < self.support:
                 res.pop(key)
         progress_bar.finish()
-
         return res
 
     def expand(self):
@@ -87,9 +92,35 @@ class Apriori:
                 i += 1
             else:
                 break
+    
+    def get_res(self):
+        res = []
+        for i in range(1, len(self.frequence)):
+            for key in list(self.frequence[i].keys()):
+                t = list(key)
+                for posterior in self.dfs_record(t, 1):
+                    posterior = list(posterior)
+                    prior = list(set(t) - set(posterior))
+                    prior.sort()
+                    posterior.sort()
+                    prior = tuple(prior)
+                    posterior = tuple(posterior)
+                    now_support = self.frequence[i][tuple(t)] / self.record_num
+                    now_confidence = self.frequence[i][tuple(t)] / self.frequence[i - 1][prior]
+                    # print(prior, "->" , posterior, ":  ", now_confidence)
+                    if now_confidence > self.confidence:
+                        res.append([prior, posterior, now_support, now_confidence])
+        return res
+
+    def print_res(self, res):
+        for item in res:
+            # print(item[0], "->", item[1], "  support: ", item[2], " confidence: ", item[3])
+            print("%-40s -> %-30s Support: %4f,   Confidence: %4f" % \
+                (str(item[0]), str(item[1]), item[2], item[3]))
 
 if __name__ == "__main__":
     apriori = Apriori("groceries.csv")
     apriori.expand()
-    print(len(apriori.frequence))
-    print(apriori.frequence[-1])
+    items = apriori.get_res()
+    apriori.print_res(items)
+    
