@@ -13,6 +13,7 @@ class Apriori:
         self.data = []
         self.frequence = []
         self.frequence.append({})
+        self.res = None
 
         for i in range(groceries_array.shape[0]):
             now_data = []
@@ -93,8 +94,8 @@ class Apriori:
             else:
                 break
     
-    def get_res(self):
-        res = []
+    def make_res(self):
+        self.res = []
         for i in range(1, len(self.frequence)):
             for key in list(self.frequence[i].keys()):
                 t = list(key)
@@ -107,20 +108,20 @@ class Apriori:
                     posterior = tuple(posterior)
                     now_support = self.frequence[i][tuple(t)] / self.record_num
                     now_confidence = self.frequence[i][tuple(t)] / self.frequence[i - 1][prior]
-                    # print(prior, "->" , posterior, ":  ", now_confidence)
                     if now_confidence > self.confidence:
-                        res.append([prior, posterior, now_support, now_confidence])
-        return res
+                        self.res.append([prior, posterior, now_support, now_confidence])
 
-    def print_res(self, res):
-        for item in res:
-            # print(item[0], "->", item[1], "  support: ", item[2], " confidence: ", item[3])
+    def print_res(self):
+        for item in self.res:
             print("%-40s -> %-30s Support: %4f,   Confidence: %4f" % \
                 (str(item[0]), str(item[1]), item[2], item[3]))
+
+    def get_res(self):
+        return self.res
 
 if __name__ == "__main__":
     apriori = Apriori("groceries.csv")
     apriori.expand()
-    items = apriori.get_res()
-    apriori.print_res(items)
+    apriori.make_res()
+    apriori.print_res()
     
