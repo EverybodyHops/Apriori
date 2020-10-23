@@ -17,7 +17,7 @@
 python main.py -f groceries.csv -c 0.3 -s 0.02
 ```
 
-命令中`-f`指定文件位置，`-c`指定置信度， `-s`。
+命令中`-f`指定文件位置，`-c`指定置信度阈值， `-s`指定支持度阈值。
 使用以上命令运行输出如下：
 ```
 ('citrus fruit',)                        -> ('whole milk',)                Support: 0.030503,   Confidence: 0.368550
